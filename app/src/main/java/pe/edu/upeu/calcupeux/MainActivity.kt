@@ -1,6 +1,7 @@
 package pe.edu.upeu.calcupeux
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -79,6 +80,66 @@ fun ButtonX(
                 .clickable(
                     enabled = true,
                     onClick = {
+                        if (isNumeric(valuex)) {
+                            var valor = textState
+                            if (isNewOp) {
+                                valor = ""
+                                onValueChange.invoke(valor)
+                            }
+                            onIsNewOpChange.invoke(false)
+                            valor += valuex
+                            onValueChange.invoke(valor)
+                        }
+                        if (valuex.equals("+") || valuex.equals("-") || valuex.equals("*") || valuex.equals(
+                                "/"
+                            ) || valuex.equals("%")
+                        ) {
+                            onOpChange.invoke(valuex)
+                            onOldValueChange.invoke(textState)
+                            onIsNewOpChange.invoke(true)
+                        }
+                        if (valuex.equals("AC")) {
+                            onValueChange.invoke("0")
+                            onIsNewOpChange.invoke(true)
+                        }
+                        if (valuex.equals(".")) {
+                            var dot = textState
+                            if (isNewOp) {
+                                dot = ""
+                                onValueChange.invoke(dot)
+                            }
+                            onIsNewOpChange.invoke(false)
+                            if (!dot.contains(".")) {
+                                dot += "."
+                                onValueChange.invoke(dot)
+                            }
+                        }
+                        if (valuex.equals("=")) {
+                            Log.i("YY", "Llego")
+                            Log.i("YY", oldTextState)
+                            if (oldTextState.isNotEmpty()) {
+                                var finalNumber = 0.0
+                                when (op) {
+                                    "*" -> {
+                                        finalNumber = oldTextState.toDouble() * textState.toDouble()
+                                    }
+                                    "/" -> {
+                                        finalNumber = oldTextState.toDouble() / textState.toDouble()
+                                    }
+                                    "+" -> {
+                                        finalNumber = oldTextState.toDouble() + textState.toDouble()
+                                    }
+                                    "-" -> {
+                                        finalNumber = oldTextState.toDouble() - textState.toDouble()
+                                    }
+                                    "%" -> {
+                                        finalNumber = oldTextState.toDouble() % textState.toDouble()
+                                    }
+                                }
+                                onValueChange.invoke(finalNumber.toString())
+                                onIsNewOpChange.invoke(true)
+                            }
+                        }
                     }
                 )
         ) {
@@ -93,7 +154,7 @@ fun ButtonX(
                 modifier = Modifier
                     .fillMaxSize()
                     .wrapContentSize(Alignment.Center)
-            )
+             )
         }
     }
 }
@@ -196,4 +257,16 @@ fun CalculatorFirstRow(
             )
         }
     }
+}
+@Composable
+fun prueba(){
+    Column() {
+        Text(text = R.string)
+    }
+}
+
+
+fun isNumeric(toCheck: String): Boolean {
+    val regex = "-?[0-9]+(\\.[0-9]+)?".toRegex()
+    return toCheck.matches(regex)
 }
